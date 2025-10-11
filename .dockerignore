@@ -1,0 +1,50 @@
+# Include any files or directories that you don't want to be copied to your
+# container here (e.g., local build artifacts, temporary files, etc.).
+#
+# For more help, visit the .dockerignore file reference guide at
+# https://docs.docker.com/go/build-context-dockerignore/
+
+# Ignore development-related files and directories
+# For development environment, we will use mount bind to mount the source code to the container
+# So we don't need to copy the source code to the container for development
+tests/
+phpunit.xml
+phpunit.xml.dist
+
+# VCS / IDE
+.git
+.gitignore
+.gitattributes
+.vscode
+.idea
+
+# Docker/CI
+docker/
+!docker/php/
+!docker/php/entrypoint.sh
+!docker/nginx/
+!docker/nginx/nginx.conf
+Dockerfile
+Dockerfile.*
+docker-compose.yml
+docker-compose.*.yml
+.github
+.gitlab-ci.yml
+
+# Node / Front
+node_modules
+public/build
+resources/js/**
+resources/css/**
+
+# PHP build artifacts
+vendor
+bootstrap/cache/*.php
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+
+# Env и локальные файлы
+.env.compose
+*.log
