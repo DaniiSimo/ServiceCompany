@@ -16,7 +16,7 @@ return new class extends Migration
 
         Schema::create(table: 'buildings', callback: function (Blueprint $table) {
             $table->id();
-            $table->string(column: 'address');
+            $table->string(column: 'address', length: 255);
             $table->timestamps();
         });
 
