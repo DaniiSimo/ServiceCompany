@@ -14,5 +14,5 @@ Route::prefix('/get')->group(callback: function () {
 	Route::get(uri:'/building',action:[OrganizationController::class, 'getByBuilding']);
 	Route::get(uri:'/area',action:[OrganizationController::class, 'getByArea']);
 	Route::get(uri:'/activity',action:[OrganizationController::class, 'getByActivity']);
-	Route::get(uri:'/{id}',action:[OrganizationController::class, 'get']);
+	Route::get(uri:'/{id}',action:[OrganizationController::class, 'get'])->whereNumber('id');
 });
