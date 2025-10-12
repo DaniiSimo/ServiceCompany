@@ -30,6 +30,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists(table: 'buildings');
-        DB::statement(query: 'DROP EXTENSION IF NOT EXISTS postgis');
     }
 };

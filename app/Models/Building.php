@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Building extends Model
 {
-    public function organization(): BelongsTo
+    use HasFactory;
+    public function organization(): HasMany
     {
-        return $this->belongsTo(Organization::class);
+        return $this->hasMany(Organization::class);
     }
 }
