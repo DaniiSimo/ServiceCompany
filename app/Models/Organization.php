@@ -11,6 +11,7 @@ use \Illuminate\Database\Eloquent\Relations\HasMany;
 class Organization extends Model
 {
     use HasFactory;
+	protected $with = ['building','phones','activities'];
     public function building(): BelongsTo
     {
         return $this->belongsTo(Building::class);
