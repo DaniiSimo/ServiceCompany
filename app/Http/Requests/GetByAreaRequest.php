@@ -29,11 +29,18 @@ class GetByAreaRequest extends FormRequest
             'polygon.*' => ['required', 'string', 'regex:/^\s*-?\d{1,3}(\.\d{1,2})?\s+-?\d{1,3}(\.\d{1,2})?\s*$/'],
             'lat' => ['nullable', 'numeric', 'between:-90,90'],
             'lon' => ['nullable', 'numeric', 'between:-180,180'],
-            'radius' => ['nullable', 'numeric'],
+            'radius' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 
-    public function failedValidation(Validator $validator)
+    public function messages(): array
+    {
+        return [
+            'polygon.*.regex' => ['Пара координат должны совпадать с шаблоном, например: "130.15 34.10" '],
+        ];
+    }
+
+    public function failedValidation(Validator $validator):void
     {
         throw new HttpResponseException(response: response()->json(data: [
             'status' => 422,

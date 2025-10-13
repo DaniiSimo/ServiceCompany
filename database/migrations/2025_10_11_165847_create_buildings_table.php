@@ -21,6 +21,8 @@ return new class extends Migration
         });
 
         DB::statement(query: 'ALTER TABLE buildings ADD COLUMN geom geometry(Point, 4326) NOT NULL');
+        DB::statement(query: "ALTER TABLE buildings ADD COLUMN lon double precision GENERATED ALWAYS AS (ST_X(geom)) STORED");
+        DB::statement(query: "ALTER TABLE buildings ADD COLUMN lat double precision GENERATED ALWAYS AS (ST_Y(geom)) STORED");
         DB::statement(query: 'CREATE INDEX buildings_geom_gist ON buildings USING GIST (geom)');
     }
 

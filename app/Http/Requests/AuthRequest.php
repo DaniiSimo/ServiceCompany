@@ -7,12 +7,8 @@ use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Validator as ValidatorFacade;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\{Auth, Hash, RateLimiter, Validator as ValidatorFacade};
 
 class AuthRequest extends FormRequest
 {
@@ -29,10 +25,10 @@ class AuthRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'email' => ['required', 'email'],
             'password' => ['required', 'string'],
         ];
     }
@@ -43,13 +39,12 @@ class AuthRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         $user = User::where('email', $this->input('email'))->first();
+        if (is_null($user) || ! Hash::check($this->input('password'), $user?->password)) {
+            RateLimiter::hit($this->throttleKey(), 240);
 
-        if (! $user || ! Hash::check($this->input('password'), $user->password)) {
-            RateLimiter::hit($this->throttleKey());
-
-            $this->failedValidation(ValidatorFacade::make([
-                'email' => trans('auth.failed'),
-            ], $this->rules()));
+            $v = ValidatorFacade::make([], []); // пустой валидатор
+            $v->errors()->add('email', trans('auth.failed'));
+            $this->failedValidation($v, $this->rules());
         }
 
         Auth::login($user);
@@ -61,17 +56,17 @@ class AuthRequest extends FormRequest
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
-
         event(new Lockout($this));
 
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
-        $this->failedValidation(ValidatorFacade::make([
-            'email' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
-        ], $this->rules()));
+        throw new HttpResponseException(
+            response()->json([
+                'status'      => 429,
+                'description' => 'Превышен лимит попыток',
+                'errors'      => [__('auth.throttle', ['seconds'=>$seconds, 'minutes'=>ceil($seconds/60)])],
+            ], 429)->withHeaders(['Retry-After' => $seconds])
+        );
     }
 
     public function throttleKey():string
@@ -84,7 +79,7 @@ class AuthRequest extends FormRequest
         throw new HttpResponseException(response: response()->json(data:[
             'status' => 422,
             'description' => 'Ошибка валидации',
-            'data' => $validator->errors(),
+            'data' => $validator->errors()
         ], status: 422));
     }
 }

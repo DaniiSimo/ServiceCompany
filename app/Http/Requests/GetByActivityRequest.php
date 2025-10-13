@@ -28,7 +28,7 @@ class GetByActivityRequest extends FormRequest
         ];
     }
 
-    public function failedValidation(Validator $validator)
+    public function failedValidation(Validator $validator):void
     {
         throw new HttpResponseException(response: response()->json(data:[
             'status' => 422,

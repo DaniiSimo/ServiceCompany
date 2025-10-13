@@ -1,13 +1,11 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\{AuthController, OrganizationController, RegisterController};
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RegisterController;
 
 Route::prefix('user')->group(callback: function () {
 	Route::post(uri: '/login', action: [AuthController::class, 'store']);
-	Route::post(uri: '/registration', action:  [RegisterController::class, 'store'])->middleware(['throttle:5,60']);
+	Route::post(uri: '/registration', action:  [RegisterController::class, 'store']);
 });
 
 Route::middleware(['auth:sanctum'])->prefix('/get')->group(callback: function () {

@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rules\Password;
 
 class RegisterRequest extends FormRequest
@@ -27,5 +29,14 @@ class RegisterRequest extends FormRequest
             'email' => ['required', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', Password::defaults()],
         ];
+    }
+
+    public function failedValidation(Validator $validator):void
+    {
+        throw new HttpResponseException(response: response()->json(data:[
+            'status' => 422,
+            'description' => 'Ошибка валидации',
+            'data' => $validator->errors()
+        ], status: 422));
     }
 }
