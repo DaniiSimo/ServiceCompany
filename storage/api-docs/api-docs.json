@@ -1,12 +1,16 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "My API",
+        "title": "Organization API",
+        "contact": {
+            "name": "Данила",
+            "url": "https://github.com/DaniiSimo"
+        },
         "version": "1.0.0"
     },
     "servers": [
         {
-            "url": "/"
+            "url": "http/localhost/api"
         }
     ],
     "paths": {
@@ -956,6 +960,7 @@
         "securitySchemes": {
             "bearerAuth": {
                 "type": "http",
+                "description": "Вводите токен без \"Bearer \" — UI подставит префикс сам",
                 "bearerFormat": "Sanctum",
                 "scheme": "bearer"
             }
