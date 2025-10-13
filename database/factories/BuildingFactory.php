@@ -22,7 +22,7 @@ class BuildingFactory extends Factory
 
         return [
             'address' => fake()->address(),
-            'geom'    => DB::raw("ST_SetSRID(ST_MakePoint($lon, $lat), 4326)"),
+            'geom'    => DB::raw(value: "ST_SetSRID(ST_MakePoint($lon, $lat), 4326)"),
             'created_at'=>now(),
             'updated_at'=>now()
         ];

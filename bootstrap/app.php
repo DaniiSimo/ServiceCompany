@@ -3,9 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Request;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use App\Http\Middleware\ForceJsonResponse;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,7 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-
+        $middleware->append(middleware: ForceJsonResponse::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
 

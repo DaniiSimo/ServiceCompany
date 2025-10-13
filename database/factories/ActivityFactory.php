@@ -23,7 +23,11 @@ class ActivityFactory extends Factory
 
         return [
             'name' => $name,
-            'path' => trim(Str::slug(Str::ascii($name),'_')),
+            'path' => trim(string:
+                Str::slug(title:
+                    Str::ascii(value: $name),separator: '_'
+                ))
+            ,
             'created_at'=>now(),
             'updated_at'=>now()
         ];
@@ -32,13 +36,8 @@ class ActivityFactory extends Factory
     {
         return $this->state(function (array $attributes) use ($parent) {
             return [
-                'path' => $parent->path.'.'.trim(Str::slug(Str::ascii($attributes['name']),'_')),
+                'path' => $parent->path.'.'.trim(string: Str::slug(title: Str::ascii(value: $attributes['name']),separator: '_')),
             ];
         });
-    }
-
-    public function getActivities(): array
-    {
-        return $this->activities;
     }
 }
