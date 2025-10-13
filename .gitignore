@@ -7,7 +7,7 @@
 /storage/pail
 /vendor
 .env*
-!.env.example
+!.env.*?example
 .phpactor.json
 .phpunit.result.cache
 Homestead.json
