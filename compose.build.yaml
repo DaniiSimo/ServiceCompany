@@ -1,6 +1,8 @@
 services:
   app:
-    image: danisimoo/pet-project-php-laravel
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
     restart: unless-stopped
     env_file:
       - ./.env

@@ -27,10 +27,6 @@ build: ## Пересобрать образ container=
 limited_build_app: ## Частично пересобрать контейнер с Laravel (без переустановки пакетов)
 	$(DC) build --build-arg BUILD_APP=$(date) app
 
-.PHONY: limited_build_nginx
-limited_build_nginx: ## Частично пересобрать контейнер с nginx (без переустановки пакетов)
-	$(DC) build --build-arg BUILD_NGINX=$(date) nginx
-
 .PHONY: logs
 logs: ## Логи (фолловинг) app+nginx
 	$(DC) logs -f $(APP) $(NGINX)
