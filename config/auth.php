@@ -112,4 +112,7 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    'count_attempts_password' => 5,
+    'decay_seconds' => 240
+
 ];

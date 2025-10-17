@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\{Activity,Organization};
 use Illuminate\Support\Collection;
+
 /**
  * Сервис заполняющий сгенерированными данными для Организации, Деятельности, Номера телефона и Здания
  */

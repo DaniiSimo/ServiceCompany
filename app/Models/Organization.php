@@ -2,49 +2,75 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use \Illuminate\Database\Eloquent\Relations\HasMany;
-use OpenApi\Attributes as OA;
-#[OA\Schema(
-	schema: 'Organization',
-	type: 'object',
-	required: ['name','building_id'],
-	properties: [
-		new OA\Property(property: 'id', type: 'integer', format: 'int64', example: 1),
-		new OA\Property(property: 'name', type: 'string', example: 'ПАО ГаражХозТелеком', maxLength: 255),
-		new OA\Property(property: 'building', ref: '#/components/schemas/Building'),
-		new OA\Property(property: 'phones', type: 'array',
-			items: new OA\Items(
-				ref: '#/components/schemas/Phone'
-			)
-		),
-		new OA\Property(property: 'activites', type: 'array',
-			items: new OA\Items(
-				ref: '#/components/schemas/Activity'
-			)
-		)
-	]
-)]
+use Illuminate\Database\Eloquent\{Builder, Factories\HasFactory, Model};
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany};
+
 class Organization extends Model
 {
     use HasFactory;
-	protected $hidden  = ['building_id', 'created_at', 'updated_at'];
-	protected $with = ['building','phones','activities'];
     public function building(): BelongsTo
     {
-        return $this->belongsTo(Building::class);
+        return $this->belongsTo(related: Building::class);
     }
 
     public function phones(): HasMany
     {
-        return $this->hasMany(Phone::class);
+        return $this->hasMany(related: Phone::class);
     }
 
     public function activities(): BelongsToMany
     {
-        return $this->belongsToMany(Activity::class,  'organizations_and_activities');
+        return $this->belongsToMany(related: Activity::class,  table: 'organizations_and_activities');
+    }
+
+    public function scopeNamed(Builder $query, ?string $name):Builder
+    {
+        return $name
+            ? $query->where(column: 'name', operator: '=',  value: $name)
+            : $query;
+    }
+
+    public function scopeWithinRadius(Builder $query, ?float $lat, ?float $lon,?float $radius):Builder{
+        return $lat && $lon && $radius
+            ? $query->whereHas(
+            relation: 'building',
+            callback: fn($subQuery) => $subQuery->whereRaw(
+                    sql: 'ST_DWithin(geom, ST_SetSRID(ST_MakePoint(?, ?),4326)::geography, ?)',
+                    bindings: [$lon, $lat, $radius]
+                )
+            )
+            : $query;
+    }
+
+    public function scopeWithinPolygon(Builder $query, ?array $polygon):Builder{
+        return $polygon
+            ? $query->whereHas(
+                relation: 'building',
+                callback: fn($subQuery) => $subQuery->whereRaw(
+                    sql: 'ST_Intersects(geom::geometry, ST_SetSRID(ST_GeomFromText(?), 4326))',
+                    bindings: ['POLYGON(('.implode(separator: ',', array: $polygon).'))']
+                )
+            )
+            : $query;
+    }
+
+    public function scopeAddress(Builder $query, ?string $address):Builder{
+        return $address
+            ? $query->whereHas(
+                relation: 'building',
+                callback: fn($subQuery) => $subQuery->where(column: 'address', operator: '=', value: $address)
+            )
+            : $query;
+    }
+
+    public function scopeNamedActivity(Builder $query, ?string $name, ?bool $shouldTakeDescendants):Builder{
+        return $name
+            ? $query->whereHas(
+                relation: 'activities',
+                callback: fn($subQuery) => !$shouldTakeDescendants
+                    ? $subQuery->where(column: 'name', operator: '=', value: $name)
+                    : $subQuery->whereRaw(sql:'path <@ text2ltree(?)', bindings:[Activity::where('name', $name)->value('path')])
+            )
+            : $query;
     }
 }

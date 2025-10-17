@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Resources\ErrorResource;
 use App\Rules\ClosedPolygonRule;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rule;
@@ -22,5 +23,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Rule::macro(name: 'closedPolygon', macro: fn() => new ClosedPolygonRule());
+
+        ErrorResource::withoutWrapping();
     }
 }

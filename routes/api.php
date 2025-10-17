@@ -1,18 +1,23 @@
 <?php
 
 use App\Http\Controllers\{AuthController, OrganizationController, RegisterController};
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Resources\ErrorResource;
 
-Route::prefix('user')->group(callback: function () {
+Route::prefix('users')->group(callback: function () {
 	Route::post(uri: '/login', action: [AuthController::class, 'store']);
 	Route::post(uri: '/registration', action:  [RegisterController::class, 'store']);
 });
 
-Route::middleware(['auth:sanctum'])->prefix('/get')->group(callback: function () {
-	Route::get(uri: '/name', action: [OrganizationController::class, 'getByName']);
-	Route::get(uri:'/name-activity',action: [OrganizationController::class, 'getByNameActivity']);
-	Route::get(uri:'/building',action:[OrganizationController::class, 'getByBuilding']);
-	Route::get(uri:'/area',action:[OrganizationController::class, 'getByArea']);
-	Route::get(uri:'/activity',action:[OrganizationController::class, 'getByActivity']);
-	Route::get(uri:'/{id}',action:[OrganizationController::class, 'get'])->whereNumber(parameters: 'id');
+Route::middleware(['auth:sanctum'])->prefix('organizations')->group(callback: function () {
+    Route::get(uri: '/{organization}', action: [OrganizationController::class, 'show'])
+        ->missing(
+            missing: fn(Request $request) =>
+            ErrorResource::make((object)[
+                'description' => 'Organization not found',
+                'errors' => []
+            ])->response(request: $request)->setStatusCode(code: 404)
+        );
+    Route::get(uri: '/', action: [OrganizationController::class, 'index']);
 });

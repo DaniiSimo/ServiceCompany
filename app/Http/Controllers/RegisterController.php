@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\RegisterRequest;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\RegisterUserRequest;
+use Illuminate\Http\JsonResponse;
+use App\Services\AuthService;
 use OpenApi\Attributes as OA;
 
 /**
@@ -12,8 +12,9 @@ use OpenApi\Attributes as OA;
  */
 class RegisterController extends Controller
 {
+    public function __construct(private AuthService $authService){}
     #[OA\Post(
-        path: '/api/user/registration',
+        path: '/api/users/registration',
         tags: ['User'],
         summary: 'Регистрация',
         requestBody: new OA\RequestBody(
@@ -23,7 +24,7 @@ class RegisterController extends Controller
                 properties: [
                     new OA\Property(property: 'name', type: 'string', example: 'test'),
                     new OA\Property(property: 'email', type: 'string', format: 'email', example: 'test@test.com'),
-                    new OA\Property(property: 'password', type: 'string', format: 'password', example: 'secret'),
+                    new OA\Property(property: 'password', type: 'string', format: 'password', example: 'secretpassword'),
                 ]
             )
         ),
@@ -31,8 +32,14 @@ class RegisterController extends Controller
             new OA\Response(
                 response: 200, description: 'OK',
                 content: new OA\JsonContent(
-                    type: 'object',
-                    ref:  '#/components/schemas/User'
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            type: 'array',
+                            items: new OA\Items(ref: '#/components/schemas/User')
+                        ),
+                    ],
+                    type: 'object'
                 )
             ),
             new OA\Response(
@@ -48,16 +55,14 @@ class RegisterController extends Controller
             )
         ]
     )]
-    public function store(RegisterRequest $request)
+    public function store(RegisterUserRequest $request): JsonResponse
     {
-        $validated = $request->safe()->only(keys: ['name','email','password']);
+        $dto = $request->dto();
+        $result = $this->authService->registration(dto: $dto);
 
-        return response()->json(data:
-            User::create(attributes:[
-                'name'=> $validated['name'],
-                'email' => $validated['email'],
-                'password' => Hash::make(value: $validated['password'])
-            ])
-        );
+        return $result
+            ->toResource()
+            ->response(request: $request)
+            ->setStatusCode(code: 200);
     }
 }

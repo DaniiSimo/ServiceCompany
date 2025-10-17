@@ -10,17 +10,17 @@
     },
     "servers": [
         {
-            "url": "http/localhost/api"
+            "url": "http://localhost"
         }
     ],
     "paths": {
-        "/api/user/login": {
+        "/api/users/login": {
             "post": {
                 "tags": [
                     "User"
                 ],
                 "summary": "Авторизация",
-                "operationId": "dc65fd9303bf79900be716c33abfcdce",
+                "operationId": "4b54274790f7da5a2d3fa7b0d74e6613",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -39,7 +39,7 @@
                                     "password": {
                                         "type": "string",
                                         "format": "password",
-                                        "example": "secret"
+                                        "example": "secretpassword"
                                     }
                                 },
                                 "type": "object"
@@ -53,9 +53,35 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
-                                },
-                                "example": "1|fdsagfdasfdasfdsafdasf"
+                                    "properties": {
+                                        "": {
+                                            "$ref": "#/components/schemas/BearerToken"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Ошибка аутентификации",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "description": {
+                                            "type": "string",
+                                            "example": "Ошибка аутентификации"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": [
+                                                "Неправильно указан логин или пароль, повторите попытку."
+                                            ]
+                                        }
+                                    },
+                                    "type": "object"
+                                }
                             }
                         }
                     },
@@ -65,10 +91,6 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "status": {
-                                            "type": "integer",
-                                            "example": 422
-                                        },
                                         "description": {
                                             "type": "string",
                                             "example": "Ошибка валидации"
@@ -92,10 +114,6 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "status": {
-                                            "type": "integer",
-                                            "example": 429
-                                        },
                                         "description": {
                                             "type": "string",
                                             "example": "Превышен лимит попыток"
@@ -115,209 +133,16 @@
                 }
             }
         },
-        "/api/get/building": {
-            "get": {
-                "tags": [
-                    "Organization"
-                ],
-                "summary": "Получение организации по адресу здания",
-                "operationId": "95ebb19d17951654d542d75d2022d71b",
-                "parameters": [
-                    {
-                        "name": "address",
-                        "in": "query",
-                        "description": "Адрес здания",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/components/schemas/Building/properties/address"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Organization"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Ошибка аутентификации",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthenticated."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Ресурс не найден",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Organization not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Ошибка валидации",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "integer",
-                                            "example": 422
-                                        },
-                                        "description": {
-                                            "type": "string",
-                                            "example": "Ошибка валидации"
-                                        },
-                                        "errors": {
-                                            "type": "object",
-                                            "example": {
-                                                "address": "Ошибка валидации"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/get/name-activity": {
-            "get": {
-                "tags": [
-                    "Organization"
-                ],
-                "summary": "Получение организаций по названию деятельности",
-                "operationId": "c7aad0225688aa1a7ad01a48098e4e4c",
-                "parameters": [
-                    {
-                        "name": "name",
-                        "in": "query",
-                        "description": "Название деятельности",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/components/schemas/Activity/properties/name"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Organization"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Ошибка аутентификации",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthenticated."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Ресурс не найден",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Organizations not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Ошибка валидации",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "integer",
-                                            "example": 422
-                                        },
-                                        "description": {
-                                            "type": "string",
-                                            "example": "Ошибка валидации"
-                                        },
-                                        "errors": {
-                                            "type": "object",
-                                            "example": {
-                                                "name": "Ошибка валидации"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/get/{id}": {
+        "/api/organizations/{organization}": {
             "get": {
                 "tags": [
                     "Organization"
                 ],
                 "summary": "Получение организации по идентификатору",
-                "operationId": "4c16bed63040cbcb2ed764231dea5301",
+                "operationId": "585449f9b1f0ed989fe5975176b1d18a",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "organization",
                         "in": "path",
                         "description": "id организации",
                         "required": true,
@@ -333,7 +158,12 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Organization"
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Organization"
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -344,120 +174,31 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthenticated."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Ресурс не найден",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Organization not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/get/name": {
-            "get": {
-                "tags": [
-                    "Organization"
-                ],
-                "summary": "Получение организации по названию",
-                "operationId": "c297f27b9b6954ea442b8c563ee9f855",
-                "parameters": [
-                    {
-                        "name": "name",
-                        "in": "query",
-                        "description": "Название организации",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/components/schemas/Organization/properties/name"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Organization"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Ошибка аутентификации",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthenticated."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Ресурс не найден",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Organization not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Ошибка валидации",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "integer",
-                                            "example": 422
-                                        },
                                         "description": {
                                             "type": "string",
-                                            "example": "Ошибка валидации"
+                                            "example": "Ошибка аутентификации"
                                         },
                                         "errors": {
                                             "type": "object",
-                                            "example": {
-                                                "name": "Ошибка валидации"
-                                            }
+                                            "example": [
+                                                "Доступ запрещён, необходим токен авторизации"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Ресурс не найден",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Organization not found"
                                         }
                                     },
                                     "type": "object"
@@ -473,17 +214,49 @@
                 ]
             }
         },
-        "/api/get/area": {
+        "/api/organizations": {
             "get": {
                 "tags": [
                     "Organization"
                 ],
-                "summary": "Получение организаций по области",
-                "description": "Поиск организаций, которые находятся в заданном радиусе/прямоугольной области относительно указанной точки на карте.",
-                "operationId": "ecd3de1ce712e13f19cfa503d44d8b8d",
+                "summary": "Получение списка организаций",
+                "operationId": "42efb13746ba71d73c330585f09ecef8",
                 "parameters": [
                     {
-                        "name": "polygon",
+                        "name": "address_building",
+                        "in": "query",
+                        "description": "Адрес здания",
+                        "schema": {
+                            "$ref": "#/components/schemas/Building/properties/address"
+                        }
+                    },
+                    {
+                        "name": "name_organization",
+                        "in": "query",
+                        "description": "Название организации",
+                        "schema": {
+                            "$ref": "#/components/schemas/Organization/properties/name"
+                        }
+                    },
+                    {
+                        "name": "name_activity",
+                        "in": "query",
+                        "description": "Название деятельности",
+                        "schema": {
+                            "$ref": "#/components/schemas/Activity/properties/name"
+                        }
+                    },
+                    {
+                        "name": "should_take_descendants",
+                        "in": "query",
+                        "description": "Необходимо ли искать среди потомков деятельности ?(Работает в связке с name_activity)",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    },
+                    {
+                        "name": "polygon[]",
                         "in": "query",
                         "description": "Координаты области (первая и последняя пара координат должны совпадать)",
                         "required": false,
@@ -507,7 +280,7 @@
                     {
                         "name": "lat",
                         "in": "query",
-                        "description": "Широта координаты, относительно которой будет производиться поиск по радиусу",
+                        "description": "Широта, относительно которой будет производиться поиск по радиусу (Работает в связке с lon и radius)",
                         "required": false,
                         "schema": {
                             "type": "number",
@@ -520,7 +293,7 @@
                     {
                         "name": "lon",
                         "in": "query",
-                        "description": "Долгота координаты, относительно которой будет производиться поиск по радиусу",
+                        "description": "Долгота, относительно которой будет производиться поиск по радиусу (Работает в связке с lat и radius)",
                         "required": false,
                         "schema": {
                             "type": "number",
@@ -533,7 +306,7 @@
                     {
                         "name": "radius",
                         "in": "query",
-                        "description": "Значение в метрах",
+                        "description": "Радиус значение в метрах (Работает в связке с lon и lat)",
                         "required": false,
                         "schema": {
                             "type": "number",
@@ -548,10 +321,15 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Organization"
-                                    }
+                                    "properties": {
+                                        "": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Organization"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -562,25 +340,15 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "message": {
+                                        "description": {
                                             "type": "string",
-                                            "example": "Unauthenticated."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Ресурс не найден",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Organization not found"
+                                            "example": "Ошибка аутентификации"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": [
+                                                "Доступ запрещён, необходим токен авторизации"
+                                            ]
                                         }
                                     },
                                     "type": "object"
@@ -594,10 +362,6 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "status": {
-                                            "type": "integer",
-                                            "example": 422
-                                        },
                                         "description": {
                                             "type": "string",
                                             "example": "Ошибка валидации"
@@ -605,8 +369,9 @@
                                         "errors": {
                                             "type": "object",
                                             "example": {
+                                                "address_building": "Ошибка валидации",
+                                                "name_organization": "Ошибка валидации",
                                                 "polygon": "Ошибка валидации",
-                                                "polygon.*": "Ошибка валидации координаты",
                                                 "lat": "Ошибка валидации",
                                                 "lon": "Ошибка валидации",
                                                 "radius": "Ошибка валидации"
@@ -626,112 +391,13 @@
                 ]
             }
         },
-        "/api/get/activity": {
-            "get": {
-                "tags": [
-                    "Organization"
-                ],
-                "summary": "Получение организаций по дереву деятельностей",
-                "description": "Например, поиск по виду деятельности «Еда», которая находится на первом уровне дерева, и чтобы нашлись все организации, которые относятся к видам деятельности, лежащим внутри",
-                "operationId": "7080e2c7ba01dd4be40cf5c9bcc4783d",
-                "parameters": [
-                    {
-                        "name": "name",
-                        "in": "query",
-                        "description": "Название деятельности",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/components/schemas/Activity/properties/name"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Organization"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Ошибка аутентификации",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthenticated."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Ресурс не найден",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Organization not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Ошибка валидации",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "integer",
-                                            "example": 422
-                                        },
-                                        "description": {
-                                            "type": "string",
-                                            "example": "Ошибка валидации"
-                                        },
-                                        "errors": {
-                                            "type": "object",
-                                            "example": {
-                                                "name": "Ошибка валидации"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/user/registration": {
+        "/api/users/registration": {
             "post": {
                 "tags": [
                     "User"
                 ],
                 "summary": "Регистрация",
-                "operationId": "c741e8678d846e97bd149240c659d9a0",
+                "operationId": "bbfb81cce1cc45e09fafe5e937340443",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -755,7 +421,7 @@
                                     "password": {
                                         "type": "string",
                                         "format": "password",
-                                        "example": "secret"
+                                        "example": "secretpassword"
                                     }
                                 },
                                 "type": "object"
@@ -769,7 +435,15 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/User"
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/User"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -809,10 +483,6 @@
     "components": {
         "schemas": {
             "Activity": {
-                "required": [
-                    "name",
-                    "path"
-                ],
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -840,11 +510,16 @@
                 },
                 "type": "object"
             },
+            "BearerToken": {
+                "properties": {
+                    "token": {
+                        "type": "string",
+                        "example": "1|fdsagfdasfdasfdsafdasf"
+                    }
+                },
+                "type": "object"
+            },
             "Building": {
-                "required": [
-                    "address",
-                    "geom"
-                ],
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -854,12 +529,6 @@
                     "address": {
                         "type": "string",
                         "example": "ПАО ГаражХозТелеком"
-                    },
-                    "geom": {
-                        "description": "Служебное поле геометрии Point(SRID=4326). В ответах не возвращаетсяЗаполняется на сервере из lon/lat, например: DB::raw(\"ST_SetSRID(ST_MakePoint(:lon,:lat), 4326)\").",
-                        "type": "string",
-                        "writeOnly": true,
-                        "example": "0101000020E61000008D5E0D501A4847C026FE28EACC7655C0"
                     },
                     "lon": {
                         "type": "number",
@@ -879,10 +548,6 @@
                 "type": "object"
             },
             "Organization": {
-                "required": [
-                    "name",
-                    "building_id"
-                ],
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -913,10 +578,6 @@
                 "type": "object"
             },
             "Phone": {
-                "required": [
-                    "phone",
-                    "organization_id"
-                ],
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -935,10 +596,6 @@
                 "type": "object"
             },
             "User": {
-                "required": [
-                    "name",
-                    "building_id"
-                ],
                 "properties": {
                     "id": {
                         "type": "integer",

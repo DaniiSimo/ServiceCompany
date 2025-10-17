@@ -2,12 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\DTO\AuthUserDTO;
+use App\Http\Resources\ActivityResource;
+use App\Http\Resources\ErrorResource;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Validation\Rules\Password;
 
-class RegisterRequest extends FormRequest
+class AuthUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,18 +27,28 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', Password::defaults()],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
         ];
+    }
+
+    public function dto(): AuthUserDTO {
+        return AuthUserDTO::fromArray(
+            data: array_merge($this->validated(),['ip' => $this->ip()])
+        );
     }
 
     public function failedValidation(Validator $validator):void
     {
-        throw new HttpResponseException(response: response()->json(data:[
-            'status' => 422,
+        $payload = (object)[
             'description' => 'Ошибка валидации',
-            'data' => $validator->errors()
-        ], status: 422));
+            'errors'      => $validator->errors(),
+        ];
+
+        $response = ErrorResource::make($payload)
+            ->response(request())
+            ->setStatusCode(code: 422);
+
+        throw new HttpResponseException(response: $response);
     }
 }
