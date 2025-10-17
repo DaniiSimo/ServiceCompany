@@ -1,6 +1,6 @@
 services:
   app:
-    image: danisimoo/pet-project-php-laravel
+    image: danisimoo/pet-project-php-laravel:1.0.1
     restart: unless-stopped
     env_file:
       - ./.env
